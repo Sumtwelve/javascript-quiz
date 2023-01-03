@@ -3,7 +3,6 @@ var startBtn = document.getElementById("start-quiz-btn");
 var viewHiScoresBtn = document.getElementById("view-high-scores-btn"); //a
 
 // Timer is in a div, idk MM:SS text formatting so I put minutes and seconds
-// in separate span elements
 var quizTimer = document.getElementById("timer"); //span
 
 // Text elements
@@ -13,7 +12,7 @@ var descText = document.getElementById("desc-text");
 // creating list elements to be displayed as choices for current question
 var body = document.body;
 var quizBox = document.getElementById("quiz-container");
-var optionList = document.createElement("ol");
+var optionList = document.createElement("ul");
 var option1 = document.createElement("li");
 var option2 = document.createElement("li");
 var option3 = document.createElement("li");
@@ -29,9 +28,9 @@ var questions = [
         options: ["array", "string", "integer", "regular expression"],
         answer: "string"
     }, {
-        questionText: "How do you stop a <code>setInterval()</code> function from repeating?",
-        options: ["<code>break</code>", "<code>stopTimer()</code>", "<code>clearInterval()</code>", "<code>timer.remove()</code>"],
-        answer: "<code>clearInterval()</code>"
+        questionText: "How do you stop a setInterval() function from repeating?",
+        options: ["break", "stopTimer()", "clearInterval()", "timer.remove()"],
+        answer: "clearInterval()"
     }, {
         questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
         options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
@@ -44,21 +43,26 @@ var questions = [
 startBtn.addEventListener("click", startQuiz);
 
 function startQuiz(event) {
-    // init and debug stuff
+    // prevent page reloading, remove Start Quiz button
     event.preventDefault();
     startBtn.remove();
 
+    // enables "are you sure you want to leave?" prompt
+    window.onbeforeunload = function() {
+        return true;
+    };
+
     // reinitilize timer, then start countdown
     timer.textContent = "05:00";
-    startTimer(3,13, playerLoses);
+    startTimer(5,0, playerLoses);
 
     // display question
     cycleQuestions();
 
-    // change text boxes to the first or next question, and restyle appropriately to make it look less like the quiz landing page
-    
-
 }
+
+
+
 
 // startTimer() function takes in numbers 'minutes' and 'seconds'
 // and then calls function doWhenOver when timer reaches 0.
@@ -79,10 +83,12 @@ function startTimer(minutes, seconds, doWhenOver) {
 }
 
 
-// the main portion of the quiz, handles displaying questions and their options
+// The main code of the quiz, handles displaying questions and their options,
+// handles figuring out if user made correct guess.
 function cycleQuestions() {
     // restyle textboxes to look less like quiz landing page
-    titleText.setAttribute("style", "text-align: left; border: 1px solid black;");
+    //titleText = document.getElementById("title-text");
+    titleText.setAttribute("style", "text-align: center; border-bottom: 1px solid gray; padding-bottom: 30px;");
     descText.setAttribute("style", "text-align: left;")
     descText.innerHTML = "";
 
@@ -92,7 +98,7 @@ function cycleQuestions() {
     for (var i = 0; i < questions.length; i++) {
         // load up first question object, display its question text
         var question = shuffQuestions[i];
-        titleText.outerHTML = "<h2>" + question.questionText + "</h2>";
+        titleText.textContent = question.questionText;
 
         // load up shuffled version of question's options array, then display each option
         shuffOptions = shuffle(question.options);
@@ -100,21 +106,18 @@ function cycleQuestions() {
         quizBox.appendChild(optionList);
 
         for (var i = 0; i < 4; i++) {
-            optionList.appendChild(optionListItems[i])
-            optionListItems[i].outerHTML = "<li>" + shuffOptions[i] + "</li>";
+            optionList.appendChild(optionListItems[i]);
+            optionListItems[i].textContent = shuffOptions[i];
         }
 
-        
-        // optionList.appendChild(option1);
-        // optionList.appendChild(option2);
-        // optionList.appendChild(option3);
-        // optionList.appendChild(option4);
+        console.log("question " + i);
     }
 }
 
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
+    titleText = document.getElementById("title-text");
     titleText.textContent = "Time's up!";
     optionList.remove();
 }

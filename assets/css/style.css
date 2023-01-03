@@ -67,7 +67,7 @@ p {
 }
 
 
-ol {
+ul {
     display: flex;
     flex-direction: column;
     text-align: center;
