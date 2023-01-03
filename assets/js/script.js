@@ -10,20 +10,30 @@ var quizTimer = document.getElementById("timer"); //span
 var titleText = document.getElementById("title-text");
 var descText = document.getElementById("desc-text");
 
-console.log(Math.floor(Math.random() * 5));
+// creating list elements to be displayed as choices for current question
+var body = document.body;
+var quizBox = document.getElementById("quiz-container");
+var optionList = document.createElement("ol");
+var option1 = document.createElement("li");
+var option2 = document.createElement("li");
+var option3 = document.createElement("li");
+var option4 = document.createElement("li"); // maximum 4 choices per question
+var optionListItems = [option1, option2, option3, option4]; // placed into array for easier textContent-setting later
+
+
 
 // questions
 var questions = [
     {
-        questionText: "The \"+\" operator joins multiple values into one ________",
+        questionText: "The \"+\" operator joins multiple values into one _____________ value.",
         options: ["array", "string", "integer", "regular expression"],
         answer: "string"
     }, {
-        questionText: "How do you stop the repeated execution of code in a <code>setInterval()</code> function?",
-        options: ["<code>break;</code>", "<code>stopTimer();</code>", "<code>clearInterval()</code>", "<code>timer.remove();</code>"],
+        questionText: "How do you stop a <code>setInterval()</code> function from repeating?",
+        options: ["<code>break</code>", "<code>stopTimer()</code>", "<code>clearInterval()</code>", "<code>timer.remove()</code>"],
         answer: "<code>clearInterval()</code>"
     }, {
-        questionText: "The variables between parentheses in a function definition are ________ , and when calling a function, you pass in matching values as ________",
+        questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
         options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
         answer: "parameters, arguments"
     }
@@ -40,7 +50,7 @@ function startQuiz(event) {
 
     // reinitilize timer, then start countdown
     timer.textContent = "05:00";
-    startTimer(0,3, playerLoses);
+    startTimer(3,13, playerLoses);
 
     // display question
     cycleQuestions();
@@ -50,7 +60,8 @@ function startQuiz(event) {
 
 }
 
-
+// startTimer() function takes in numbers 'minutes' and 'seconds'
+// and then calls function doWhenOver when timer reaches 0.
 function startTimer(minutes, seconds, doWhenOver) {
     // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately
     // total seconds (timeLeft) converts minutes into seconds then adds it to 'seconds' argument
@@ -68,22 +79,47 @@ function startTimer(minutes, seconds, doWhenOver) {
 }
 
 
+// the main portion of the quiz, handles displaying questions and their options
 function cycleQuestions() {
     // restyle textboxes to look less like quiz landing page
-    titleText.setAttribute("style", "text-align: left; margin-left: 25vw;");
-    descText.setAttribute("style", "text-align: left; margin-left: 25vw; padding-right: 20vw;")
-    descText.textContent = "";
+    titleText.setAttribute("style", "text-align: left; border: 1px solid black;");
+    descText.setAttribute("style", "text-align: left;")
+    descText.innerHTML = "";
 
     // display the questions
-    var question = questions[0];
-    titleText.textContent = question.questionText;
+    shuffQuestions = shuffle(questions); // shuffle questions array to ensure random order each time
+
+    for (var i = 0; i < questions.length; i++) {
+        // load up first question object, display its question text
+        var question = shuffQuestions[i];
+        titleText.outerHTML = "<h2>" + question.questionText + "</h2>";
+
+        // load up shuffled version of question's options array, then display each option
+        shuffOptions = shuffle(question.options);
+
+        quizBox.appendChild(optionList);
+
+        for (var i = 0; i < 4; i++) {
+            optionList.appendChild(optionListItems[i])
+            optionListItems[i].outerHTML = "<li>" + shuffOptions[i] + "</li>";
+        }
+
+        
+        // optionList.appendChild(option1);
+        // optionList.appendChild(option2);
+        // optionList.appendChild(option3);
+        // optionList.appendChild(option4);
+    }
 }
 
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
     titleText.textContent = "Time's up!";
+    optionList.remove();
 }
+
+
 
 
 
@@ -101,15 +137,15 @@ function toMMSS(seconds) {
 
     // this is a bit hacky but let me explain what it is
     // if number on either side of colon is not big enough to take two spaces,
-    // which only happens in a few specific instances, program fills the space with a 0
-    // Happens when minutes is less than 10. For seconds, happens when it is less than 10
-    // or when it is a multiple of 60 (which case mimics the behavior of real timers and clocks)
+    // program fills the space with an extra 0.
+    // Necessary when minutes or seconds is less than 10, or when seconds is a multiple of 60.
+    // Thus it mimics the behavior of real digital clocks, which never display the number 60.
     var extraZeroM = "";
     var extraZeroS = "";
     if (minutes < 10) {
         extraZeroM = "0";
     }
-    if (seconds < 10 || (seconds % 60) == 0) {
+    if (remainingSeconds < 10 || (remainingSeconds % 60) == 0) {
         extraZeroS = "0";
     }
 
@@ -124,19 +160,23 @@ function toMMSS(seconds) {
 // The 'front' and 'back' are delimited by m, a number that decreases by 1 per random choosing,
 // thus it acts as a current index marker. All random indexes chosen will be less than m, so no element
 // can be selected twice.
-// 
+// Once random element i is chosen, safely swap it with element m by means of temporary register t.
 function shuffle(array) {
-    // initialize m (total number of elements), plus undef variables t and i
+    // initialize m (total number of elements, total number of UNCHOSEN elements), plus undef variables t and i
     var m = array.length, t, i;
 
     // shuffle will cease when m == 0
     while (m) {
-        // pick a random element that has not been picked yet
+        // pick a random element that has not been picked yet (between index 0 and m-1)
+        // this is the real meat of the algorithm; the rest is just safe swapping code
         i = Math.floor(Math.random() * m--);
 
-        // temporarily store final 'front' element
+        // safely swap two elements in an array
+        // step 1: store element to swap in temporary register t
         t = array[m];
+        // step 2: place randomly chosen element at position m
         array[m] = array[i];
+        // step 3: replaced element is placed back into array from t into position i
         array[i] = t;
     }
 
