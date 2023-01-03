@@ -3,7 +3,7 @@ var startBtn = document.getElementById("start-quiz-btn");
 var viewHiScoresBtn = document.getElementById("view-high-scores-btn"); //a
 
 // Timer is in a div, idk MM:SS text formatting so I put minutes and seconds
-var quizTimer = document.getElementById("timer"); //span
+var timer = document.getElementById("timer"); //span
 
 // Text elements
 var titleText = document.getElementById("title-text");
@@ -19,6 +19,7 @@ var option3 = document.createElement("li");
 var option4 = document.createElement("li"); // maximum 4 choices per question
 var optionListItems = [option1, option2, option3, option4]; // placed into array for easier textContent-setting later
 
+var timeLeft = 300;
 
 
 // questions
@@ -48,39 +49,19 @@ function startQuiz(event) {
     startBtn.remove();
 
     // enables "are you sure you want to leave?" prompt
-    window.onbeforeunload = function() {
-        return true;
-    };
+    // window.onbeforeunload = function() {
+    //     return false;
+    // };
 
-    // reinitilize timer, then start countdown
+    // reinitilize timer
     timer.textContent = "05:00";
-    startTimer(5,0, playerLoses);
+    timeLeft = 300;
 
-    // display question
+    // begin quiz
     cycleQuestions();
 
 }
 
-
-
-
-// startTimer() function takes in numbers 'minutes' and 'seconds'
-// and then calls function doWhenOver when timer reaches 0.
-function startTimer(minutes, seconds, doWhenOver) {
-    // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately
-    // total seconds (timeLeft) converts minutes into seconds then adds it to 'seconds' argument
-    var timeLeft = seconds + (minutes * 60);
-    timer.textContent = toMMSS(timeLeft);
-    var timerInterval = setInterval(function() {
-        if (timeLeft > 0) {
-            timeLeft--;
-            timer.textContent = toMMSS(timeLeft);
-        } else {
-            doWhenOver();
-            clearInterval(timerInterval);
-        }
-    }, 1000);
-}
 
 
 // The main code of the quiz, handles displaying questions and their options,
@@ -92,28 +73,68 @@ function cycleQuestions() {
     descText.setAttribute("style", "text-align: left;")
     descText.innerHTML = "";
 
+    // start the timer
+    // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately
+    // total seconds (timeLeft) converts minutes into seconds then adds it to 'seconds' argument
+    var timeLeft = 300;
+    timer.textContent = toMMSS(timeLeft);
+    var timerInterval = setInterval(function() {
+        if (timeLeft > 0) {
+            timeLeft--;
+            timer.textContent = toMMSS(timeLeft);
+        } else {
+            playerLoses();
+            clearInterval(timerInterval);
+        }
+    }, 1000);
+
     // display the questions
     shuffQuestions = shuffle(questions); // shuffle questions array to ensure random order each time
 
-    for (var i = 0; i < questions.length; i++) {
-        // load up first question object, display its question text
-        var question = shuffQuestions[i];
-        titleText.textContent = question.questionText;
+    display
+    
+    // load up first question object, display its question text
+    console.log("question " + i);
+    var question = shuffQuestions[i];
+    titleText.textContent = question.questionText;
 
-        // load up shuffled version of question's options array, then display each option
-        shuffOptions = shuffle(question.options);
+    // load up shuffled version of question's options array, then display each option
+    shuffOptions = shuffle(question.options);
 
-        quizBox.appendChild(optionList);
+    quizBox.appendChild(optionList);
 
-        for (var i = 0; i < 4; i++) {
-            optionList.appendChild(optionListItems[i]);
-            optionListItems[i].textContent = shuffOptions[i];
-        }
-
-        console.log("question " + i);
+    for (var j = 0; j < 4; j++) {
+        optionList.appendChild(optionListItems[j]);
+        optionListItems[j].textContent = shuffOptions[j];
+        optionListItems[j].addEventListener("click", function() {
+            if (targetText == question.answer) {
+                console.log(targetText + " is right!");
+                target.setAttribute("style", "background-color: #00AA00;");
+            } else if (targetText != question.answer && (target.getAttribute("penalize") == "true" || target.getAttribute("penalize") == null)) {
+                timeLeft += 10;
+                target.setAttribute("style", "background-color: red;");
+                target.setAttribute("penalize", "false");
+            }
+        })
     }
+
+    optionList.addEventListener("click", function(event) {
+        event.stopPropagation();
+        var target = event.target;
+        var targetText = event.target.innerHTML;
+
+        //var isOption = (target.toString().substring(0,4) == "<li>");
+
+        
+    });
+    console.log(i);
+    
+
 }
 
+function displayQuestion(number) {
+
+}
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
@@ -153,6 +174,14 @@ function toMMSS(seconds) {
     }
 
     return extraZeroM + minutes + ":" + extraZeroS + remainingSeconds;
+}
+
+
+function addSecToTimer(timer, penaltySeconds) {
+    tl = timer.innerHTML.split(":");
+    console.log(tl);
+    console.log("Gonna do this: startTimer(" + tl[0] + ", (" + tl[1] + penaltySeconds + "), playerLoses");
+    startTimer(parseInt(tl[0]), (parseInt(tl[1]) + penaltySeconds), playerLoses);
 }
 
 
