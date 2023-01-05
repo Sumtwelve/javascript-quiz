@@ -74,66 +74,52 @@ function cycleQuestions() {
     descText.innerHTML = "";
 
     // start the timer
-    // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately
-    // total seconds (timeLeft) converts minutes into seconds then adds it to 'seconds' argument
-    var timeLeft = 300;
+    // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately.
+    var timeLeft = 300; // 300 seconds = 5 minutes
     timer.textContent = toMMSS(timeLeft);
     var timerInterval = setInterval(function() {
         if (timeLeft > 0) {
             timeLeft--;
             timer.textContent = toMMSS(timeLeft);
         } else {
-            playerLoses();
             clearInterval(timerInterval);
+            playerLoses();
         }
-    }, 1000);
+    }, 1000); // execute every 1 second
 
     // display the questions
     shuffQuestions = shuffle(questions); // shuffle questions array to ensure random order each time
 
-    display
-    
     // load up first question object, display its question text
-    console.log("question " + i);
-    var question = shuffQuestions[i];
+    var question = shuffQuestions[0];
     titleText.textContent = question.questionText;
 
+    displayQuestion(shuffQuestions[0]);
+
+}
+
+function displayQuestion(question) {
     // load up shuffled version of question's options array, then display each option
     shuffOptions = shuffle(question.options);
 
     quizBox.appendChild(optionList);
 
-    for (var j = 0; j < 4; j++) {
-        optionList.appendChild(optionListItems[j]);
-        optionListItems[j].textContent = shuffOptions[j];
-        optionListItems[j].addEventListener("click", function() {
-            if (targetText == question.answer) {
-                console.log(targetText + " is right!");
+    for (var i = 0; i < 4; i++) {
+        optionList.appendChild(optionListItems[i]);
+        optionListItems[i].textContent = shuffOptions[i];
+        optionListItems[i].addEventListener("click", function(event) {
+            var target = event.target;
+            var isCorrect = target.innerHTML == question.answer;
+            if (isCorrect) {
+                console.log(target.innerHTML + " is right!");
                 target.setAttribute("style", "background-color: #00AA00;");
-            } else if (targetText != question.answer && (target.getAttribute("penalize") == "true" || target.getAttribute("penalize") == null)) {
+            } else if (!isCorrect && target.getAttribute("style") == null) {
                 timeLeft += 10;
                 target.setAttribute("style", "background-color: red;");
                 target.setAttribute("penalize", "false");
             }
         })
     }
-
-    optionList.addEventListener("click", function(event) {
-        event.stopPropagation();
-        var target = event.target;
-        var targetText = event.target.innerHTML;
-
-        //var isOption = (target.toString().substring(0,4) == "<li>");
-
-        
-    });
-    console.log(i);
-    
-
-}
-
-function displayQuestion(number) {
-
 }
 
 function playerLoses() {
