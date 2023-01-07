@@ -57,26 +57,32 @@ function startQuiz(event) {
     timer.textContent = "05:00";
     timeLeft = 300;
 
+    // erase title text, make sure option list elements are blank and append them to page
+    titleText.textContent = "";
+    descText.textContent = "";
+    quizBox.appendChild(optionList);
+    for (var i = 0; i < 4; i++) {
+        optionListItems[i].textContent = "";
+        optionListItems[i].setAttribute("advance", "true");
+        optionListItems[i].setAttribute("penalize", "true");
+        optionList.appendChild(optionListItems[i]);
+    }
+
     // begin quiz
     cycleQuestions();
 
 }
 
 
-
-// The main code of the quiz, handles displaying questions and their options,
-// handles figuring out if user made correct guess.
 function cycleQuestions() {
-    // restyle textboxes to look less like quiz landing page
-    //titleText = document.getElementById("title-text");
-    titleText.setAttribute("style", "text-align: center; border-bottom: 1px solid gray; padding-bottom: 30px;");
-    descText.setAttribute("style", "text-align: left;")
-    descText.innerHTML = "";
+    // SETUP BEFORE WE START THE TIMER
+    var shuffQuestions = shuffle(questions); // shuffles the question order. Random question order makes for a better quiz imo
+    var qc = 0; // question counter, to know which question we're on
+    var incQC = false; // when false, clicking an option does not advance the user to the next question. Essentially disables user input.
+    var timeLeft = 300; // 300 secons = 5 minutes
+    timer.textContent = toMMSS(timeLeft); // format seconds into MM:SS
 
-    // start the timer
-    // timer counts only counts in seconds. Timer will be reformatted into MM:SS separately.
-    var timeLeft = 300; // 300 seconds = 5 minutes
-    timer.textContent = toMMSS(timeLeft);
+    // START THE TIMER
     var timerInterval = setInterval(function() {
         if (timeLeft > 0) {
             timeLeft--;
@@ -85,42 +91,25 @@ function cycleQuestions() {
             clearInterval(timerInterval);
             playerLoses();
         }
-    }, 1000); // execute every 1 second
+    }, 1000); // executes every 1 second
 
-    // display the questions
-    shuffQuestions = shuffle(questions); // shuffle questions array to ensure random order each time
-
-    // load up first question object, display its question text
-    var question = shuffQuestions[0];
-    titleText.textContent = question.questionText;
-
-    displayQuestion(shuffQuestions[0]);
-
-}
-
-function displayQuestion(question) {
-    // load up shuffled version of question's options array, then display each option
-    shuffOptions = shuffle(question.options);
-
-    quizBox.appendChild(optionList);
-
+    // PLACE CLICK LISTENERS ON OPTIONS
     for (var i = 0; i < 4; i++) {
-        optionList.appendChild(optionListItems[i]);
-        optionListItems[i].textContent = shuffOptions[i];
         optionListItems[i].addEventListener("click", function(event) {
             var target = event.target;
-            var isCorrect = target.innerHTML == question.answer;
-            if (isCorrect) {
-                console.log(target.innerHTML + " is right!");
-                target.setAttribute("style", "background-color: #00AA00;");
-            } else if (!isCorrect && target.getAttribute("style") == null) {
-                timeLeft += 10;
-                target.setAttribute("style", "background-color: red;");
-                target.setAttribute("penalize", "false");
+            var targetText = event.target.innerHTML;
+
+
+            target.setAttribute("advance", "false");
+
+            if (targetText == shuffQuestions[qc].answer) {
+                target.setAttribute("style", "background: #00BB00;");
             }
-        })
+        });
     }
 }
+
+
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
