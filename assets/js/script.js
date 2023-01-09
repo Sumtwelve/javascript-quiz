@@ -19,13 +19,11 @@ var option3 = document.createElement("li");
 var option4 = document.createElement("li"); // maximum 4 choices per question
 var optionListItems = [option1, option2, option3, option4]; // placed into array for easier textContent-setting later
 
-var timeLeft = 300;
-
 
 // questions
 var questions = [
     {
-        questionText: "The \"+\" operator joins multiple values into one _____________ value.",
+        questionText: "Using the \"+\" operator joins multiple values into one _____________ value.",
         options: ["array", "string", "integer", "regular expression"],
         answer: "string"
     }, {
@@ -36,9 +34,44 @@ var questions = [
         questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
         options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
         answer: "parameters, arguments"
-    }
+    }, {
+        questionText: "What is the jQuery symbol?",
+        options: ["%", "#", "$", "!"],
+        answer: "$"
+    }, {
+        questionText: "Which of these is NOT a valid EventListener type for an Element object?",
+        options: ["wheel", "copy", "keydown", "rightclick"],
+        answer: "rightclick"
+    }, {
+        questionText: "What does \"href\" stand for?",
+        options: ["href; it stands for nothing", "hypertext reference", "HTML reflow", "hypertext reflection"],
+        answer: "hypertext reference"
+    }, {
+        questionText: "jQuery is an example of a(n) _____________ .",
+        options: ["GitHub repository", "3rd-Party API", "Webkit", "JS Development Kit"],
+        answer: "3rd-Party API"
+    }, {
+        questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
+        options: ["var element = document.getElementByID(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
+        answer: "var element = document.getElementByID(\"box\");"
+    }, {
+        questionText: "Objects are initialized with _____________ .",
+        options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
+        answer: "curly braces"
+    }, {
+        questionText: "JavaScript was invented in which year?",
+        options: ["1995", "1997", "1994", "1996"],
+        answer: "1995"
+    }, {
+        questionText: "TRUE OR FALSE: A string, being just an array of characters, has access to all of the native array methods.",
+        options: ["true", "false"],
+        answer: "false"
+    }/*, {
+        questionText: "",
+        options: [""],
+        answer: ""
+    } */
 ];
-
 
 // add event listener to landing page start button and begin the quiz!!
 startBtn.addEventListener("click", startQuiz);
@@ -53,9 +86,9 @@ function startQuiz(event) {
     //     return false;
     // };
 
-    // reinitilize timer
-    timer.textContent = "05:00";
-    timeLeft = 300;
+    // reinitialize timer just in case
+    // timer.textContent = "05:00";
+    // timeLeft = 300;
 
     // erase title text, make sure option list elements are blank and append them to page
     titleText.textContent = "";
@@ -63,62 +96,128 @@ function startQuiz(event) {
     quizBox.appendChild(optionList);
     for (var i = 0; i < 4; i++) {
         optionListItems[i].textContent = "";
-        optionListItems[i].setAttribute("advance", "true");
-        optionListItems[i].setAttribute("penalize", "true");
         optionList.appendChild(optionListItems[i]);
     }
 
-    // begin quiz
-    cycleQuestions();
+    // begin quiz from the beginning
+    var shuffQuestions = shuffle(questions); // suffles the question order. Random question order makes for a better quiz imo
+    cycleQuestions(shuffQuestions, 0, 60); // questions list, start at question, seconds on the timer
 
 }
 
+var score; // stored outside the quiz function so as to not be overwritten by recursion
 
-function cycleQuestions() {
-    // SETUP BEFORE WE START THE TIMER
-    var shuffQuestions = shuffle(questions); // shuffles the question order. Random question order makes for a better quiz imo
-    var qc = 0; // question counter, to know which question we're on
-    var incQC = false; // when false, clicking an option does not advance the user to the next question. Essentially disables user input.
-    var timeLeft = 300; // 300 secons = 5 minutes
-    timer.textContent = toMMSS(timeLeft); // format seconds into MM:SS
+// recursive function which displays a question, then 
+function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
-    // START THE TIMER
-    var timerInterval = setInterval(function() {
-        if (timeLeft > 0) {
-            timeLeft--;
-            timer.textContent = toMMSS(timeLeft);
-        } else {
-            clearInterval(timerInterval);
-            playerLoses();
-        }
-    }, 1000); // executes every 1 second
-
-    // PLACE CLICK LISTENERS ON OPTIONS
-    for (var i = 0; i < 4; i++) {
-        optionListItems[i].addEventListener("click", function(event) {
-            var target = event.target;
-            var targetText = event.target.innerHTML;
-
-
-            target.setAttribute("advance", "false");
-
-            if (targetText == shuffQuestions[qc].answer) {
-                target.setAttribute("style", "background: #00BB00;");
+    // START THE TIMER IF WE ARE ON THE FIRST QUESTION
+    if (questionNumber == 0) {
+        timer.textContent = toMMSS(timerSeconds); // format seconds into MM:SS
+        timerInterval = setInterval(function() {
+            if (timerSeconds > 0) {
+                timerSeconds--;
+                timer.textContent = toMMSS(timerSeconds);
+            } else {
+                clearInterval(timerInterval);
+                playerLoses();
             }
-        });
+        }, 1000); // timer decrements by 1 every 1 second
     }
+    
+    if (questionNumber >= questionsList.length) {
+        // execute when code attempts to display a question number outside the bounds of the questions list
+        clearInterval(timerInterval);
+        score = timerSeconds;
+        console.log("player finished with " + score + " seconds left!");
+        playerWins();
+    } else {
+        console.log("\nBEGIN DISPLAYING QUESTIONS[" + questionNumber + "]");
+        // DISPLAY THE QUESTION AND OPTIONS
+        titleText.textContent = questionsList[questionNumber].questionText;
+        descText.textContent = "";
+
+        shuffOptions = shuffle(questionsList[questionNumber].options);
+        
+        console.log("correct answer is now " + questionsList[questionNumber].answer);
+
+        optionList.setAttribute("style", "margin-top: 100px;")
+
+        // SET TEXT, STYLE, AND PLACE CLICK LISTENERS ON OPTIONS
+        // this is the main logic of the quiz
+        for (var i = 0; i < shuffOptions.length; i++) {
+
+            optionListItems[i].textContent = shuffOptions[i];
+            optionListItems[i].setAttribute("style", "background-color: var(--dark-purple);")
+            optionListItems[i].setAttribute("advance", "true");
+            optionListItems[i].setAttribute("penalize", "true");
+
+            // add listeners to each option element
+            optionListItems[i].addEventListener("click", function(event) {
+                
+                // var target = event.target;
+                // var targetText = event.target.innerHTML;
+
+                var penalizes = event.target.getAttribute("penalize") == "true";
+                var advances = event.target.getAttribute("advance") == "true";
+
+                console.log("user selected option " + event.target.innerHTML);
+                console.log("that is " + (event.target.innerHTML == answer));
+
+                if (event.target.innerHTML == questionsList[questionNumber].answer && advances) {
+                    score = timerSeconds;
+                    optionList.setAttribute("style", "margin-top: 26px;")
+                    descText.textContent = "CORRECT!";
+                    console.log("that's right! advances!")
+                    event.target.setAttribute("penalize", "false");
+                    event.target.setAttribute("advance", "false");
+                    event.target.setAttribute("style", "background: #00BB00;");
+                    console.log("advancing to questions[" + (questionNumber + 1) + "]");
+
+                    questionNumber++;
+
+                    if (questionNumber <= shuffOptions.length) {
+                        // wait 1.5 seconds after correct guess before advancing to the next question
+                        setTimeout(function() {
+                            // increment questionNumber argument, then recurse. Advances to next question.
+                            cycleQuestions(questionsList, questionNumber, timerSeconds);
+                        }, 1250);
+                    } else {
+                        score = timerSeconds;
+                        playerWins();
+                    }
+                        
+
+                    
+                }
+                if (event.target.innerHTML != questionsList[questionNumber].answer && penalizes) {
+                    descText.textContent = "INCORRECT!";
+                    descText.setAttribute("style", "background-color: --correct;");
+                    console.log("wrong!!");
+                    event.target.setAttribute("style", "background: red;");
+                    event.target.setAttribute("penalize", "false");
+                    event.target.setAttribute("advance", "false");
+                    timerSeconds -= 10;
+                } // else do nothing at all
+            });
+        }
+    }    
 }
 
 
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
-    titleText = document.getElementById("title-text");
+    //titleText = document.getElementById("title-text");
     titleText.textContent = "Time's up!";
+    descText.textContent = "";
     optionList.remove();
 }
 
-
+function playerWins() {
+    console.log("player wins!");
+    //titleText = document.getElementById("title-text");
+    titleText.textContent = "You win!";
+}
 
 
 
