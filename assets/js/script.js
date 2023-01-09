@@ -287,14 +287,6 @@ function toMMSS(seconds) {
 }
 
 
-function addSecToTimer(timer, penaltySeconds) {
-    tl = timer.innerHTML.split(":");
-    console.log(tl);
-    console.log("Gonna do this: startTimer(" + tl[0] + ", (" + tl[1] + penaltySeconds + "), playerLoses");
-    startTimer(parseInt(tl[0]), (parseInt(tl[1]) + penaltySeconds), playerLoses);
-}
-
-
 // FISHER-YATES ARRAY SHUFFLE
 // Credit for this code goes to Mike Bostock, https://bost.ocks.org/mike/shuffle/
 // This algorithm shuffles the array in place by choosing a random index from the front of the array
