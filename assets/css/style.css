@@ -1,5 +1,8 @@
 :root {
-    /* TODO: add color variables */
+    --dark-purple: rgb(61, 44, 65);
+    --purple: rgb(97, 79, 255);
+    --correct: #00BB00;
+    --incorrect: red;
 }
 
 body {
@@ -8,11 +11,14 @@ body {
 }
 
 main {
+    display: block;
+    width: 80%;
+    margin: auto;
     text-align: center;
 }
 
 header {
-    margin-bottom: 15vh;
+    margin-bottom: 10vh;
     display: flex;
     justify-content: space-between;
 }
@@ -23,7 +29,7 @@ footer {
     width: 100%;
     bottom: 20px;
     left: 0;
-    margin: 0;
+    margin-top: 100px;
     padding: 0;
 }
 
@@ -31,12 +37,19 @@ footer {
 header a {
     font-size: 20px;
     text-decoration: none;
-    border: 1px solid black;
+    border: 1px solid var(--dark-purple);
     border-radius: 15px;
     padding: 15px;
+    transition: all 0.2s ease;
 }
 
-.timer {
+header a:hover {
+    color: white;
+    background-color: var(--purple);
+    border-color: var(--purple);
+}
+
+.timer-container {
     font-size: 40px;
 }
 
@@ -49,8 +62,84 @@ p {
     font-size: 28px;
 }
 
+.desc-text {
+    margin: 0;
+}
+
 #start-quiz-btn {
     font-size: 30px;
-    padding: 20px;
+    padding: 25px;
     margin: 2%;
+    color: white;
+    background-color:var(--dark-purple);
+    border: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+#start-quiz-btn:hover {
+    background-color: var(--purple);
+    cursor: pointer;
+}
+
+
+ul {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-content: center;
+    margin-top: 100px;
+}
+
+li {
+    font-size: 35px;
+    padding: 30px 10px;
+    margin: 5px;
+    color: white;
+    background-color: var(--dark-purple);
+    border-radius: 25px;
+    transition: all 0.2s ease;
+}
+
+li::marker {
+    content: none;
+}
+
+li:hover {
+    background-color: var(--purple);
+    cursor: pointer;
+}
+
+form {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    column-gap: 30px;
+}
+
+form input {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 30px;
+    padding: 10px;
+}
+
+form input::placeholder {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+form button {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 20px;
+    color: white;
+    background-color: var(--dark-purple);
+    padding: 10px 30px;
+    border-radius: 10px;
+    letter-spacing: 0.1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+form button:hover {
+    background-color: var(--purple);
+    border-color: var(--purple);
 }
