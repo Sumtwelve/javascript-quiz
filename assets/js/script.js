@@ -19,6 +19,23 @@ var option3 = document.createElement("li");
 var option4 = document.createElement("li"); // maximum 4 choices per question
 var optionListItems = [option1, option2, option3, option4]; // placed into array for easier textContent-setting later
 
+// creating input field for entering your name when you get a high score
+var hsForm = document.createElement("form");
+hsForm.setAttribute("method", "POST");
+
+var hsName = document.createElement("input");
+hsName.setAttribute("type", "text");
+hsName.setAttribute("name", "user-name");
+hsName.setAttribute("placeholder", "Name");
+
+var hsBtn = document.createElement("button");
+hsBtn.setAttribute("type", "button");
+hsBtn.textContent = "SUBMIT";
+
+var hsList = document.createElement("section");
+
+hsForm.appendChild(hsName);
+hsForm.appendChild(hsBtn);
 
 // questions
 var questions = [
@@ -26,47 +43,47 @@ var questions = [
         questionText: "Using the \"+\" operator joins multiple values into one _____________ value.",
         options: ["array", "string", "integer", "regular expression"],
         answer: "string"
-    }, {
-        questionText: "How do you stop a setInterval() function from repeating?",
-        options: ["break", "stopTimer()", "clearInterval()", "timer.remove()"],
-        answer: "clearInterval()"
-    }, {
-        questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
-        options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
-        answer: "parameters, arguments"
-    }, {
-        questionText: "What is the jQuery symbol?",
-        options: ["%", "#", "$", "!"],
-        answer: "$"
-    }, {
-        questionText: "Which of these is NOT a valid EventListener type for an Element object?",
-        options: ["wheel", "copy", "keydown", "rightclick"],
-        answer: "rightclick"
-    }, {
-        questionText: "What does \"href\" stand for?",
-        options: ["href; it stands for nothing", "hypertext reference", "HTML reflow", "hypertext reflection"],
-        answer: "hypertext reference"
-    }, {
-        questionText: "jQuery is an example of a(n) _____________ .",
-        options: ["GitHub repository", "3rd-Party API", "Webkit", "JS Development Kit"],
-        answer: "3rd-Party API"
-    }, {
-        questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
-        options: ["var element = document.getElementByID(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
-        answer: "var element = document.getElementByID(\"box\");"
-    }, {
-        questionText: "Objects are initialized with _____________ .",
-        options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
-        answer: "curly braces"
-    }, {
-        questionText: "JavaScript was invented in which year?",
-        options: ["1995", "1997", "1994", "1996"],
-        answer: "1995"
-    }, {
-        questionText: "TRUE OR FALSE: A string, being just an array of characters, has access to all of the native array methods.",
-        options: ["true", "false"],
-        answer: "false"
-    }/*, {
+    }//, {
+    //     questionText: "How do you stop a setInterval() function from repeating?",
+    //     options: ["break", "stopTimer()", "clearInterval()", "timer.remove()"],
+    //     answer: "clearInterval()"
+    // }, {
+    //     questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
+    //     options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
+    //     answer: "parameters, arguments"
+    // }, {
+    //     questionText: "What is the jQuery symbol?",
+    //     options: ["%", "#", "$", "!"],
+    //     answer: "$"
+    // }, {
+    //     questionText: "Which of these is NOT a valid EventListener type for an Element object?",
+    //     options: ["wheel", "copy", "keydown", "rightclick"],
+    //     answer: "rightclick"
+    // }, {
+    //     questionText: "What does \"href\" stand for?",
+    //     options: ["href; it stands for nothing", "hypertext reference", "HTML reflow", "hypertext reflection"],
+    //     answer: "hypertext reference"
+    // }, {
+    //     questionText: "jQuery is an example of a(n) _____________ .",
+    //     options: ["GitHub repository", "3rd-Party API", "Webkit", "JS Development Kit"],
+    //     answer: "3rd-Party API"
+    // }, {
+    //     questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
+    //     options: ["var element = document.getElementByID(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
+    //     answer: "var element = document.getElementByID(\"box\");"
+    // }, {
+    //     questionText: "Objects are initialized with _____________ .",
+    //     options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
+    //     answer: "curly braces"
+    // }, {
+    //     questionText: "JavaScript was invented in which year?",
+    //     options: ["1995", "1997", "1994", "1996"],
+    //     answer: "1995"
+    // }, {
+    //     questionText: "TRUE OR FALSE: A string, being just an array of characters, has access to all of the native array methods.",
+    //     options: ["true", "false"],
+    //     answer: "false"
+    /*}/*, {
         questionText: "",
         options: [""],
         answer: ""
@@ -110,6 +127,8 @@ var score; // stored outside the quiz function so as to not be overwritten by re
 // recursive function which displays a question, then 
 function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
+    console.log(questionsList);
+
     // START THE TIMER IF WE ARE ON THE FIRST QUESTION
     if (questionNumber == 0) {
         timer.textContent = toMMSS(timerSeconds); // format seconds into MM:SS
@@ -118,6 +137,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 timerSeconds--;
                 timer.textContent = toMMSS(timerSeconds);
             } else {
+                score = 0;
                 clearInterval(timerInterval);
                 playerLoses();
             }
@@ -142,6 +162,15 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
         optionList.setAttribute("style", "margin-top: 100px;")
 
+        if (questionsList[questionNumber].options.length == 2) {
+            option3.setAttribute("style", "display: none;");
+            option4.setAttribute("style", "display: none;");
+        } else {
+            for (var i = 0; i < questionsList[questionNumber].options.length; i++) {
+                optionListItems[i].setAttribute("style", "display: visible;")
+            }
+        }
+
         // SET TEXT, STYLE, AND PLACE CLICK LISTENERS ON OPTIONS
         // this is the main logic of the quiz
         for (var i = 0; i < shuffOptions.length; i++) {
@@ -161,11 +190,14 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 var advances = event.target.getAttribute("advance") == "true";
 
                 console.log("user selected option " + event.target.innerHTML);
-                console.log("that is " + (event.target.innerHTML == answer));
+                console.log("that is " + (event.target.innerHTML == questionsList[questionNumber].answer));
 
-                if (event.target.innerHTML == questionsList[questionNumber].answer && advances) {
+                // On click, change top margin so that when INCORRECT or CORRECT text appears,
+                // the list isn't shifted down. There's probably a better way to do this.
+                optionList.setAttribute("style", "margin-top: 27px;");
+
+                if (event.target.innerHTML == questionsList[questionNumber].answer && event.target.getAttribute("advance") == "true") {
                     score = timerSeconds;
-                    optionList.setAttribute("style", "margin-top: 26px;")
                     descText.textContent = "CORRECT!";
                     console.log("that's right! advances!")
                     event.target.setAttribute("penalize", "false");
@@ -175,7 +207,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
                     questionNumber++;
 
-                    if (questionNumber <= shuffOptions.length) {
+                    if (questionNumber <= questionsList.length) {
                         // wait 1.5 seconds after correct guess before advancing to the next question
                         setTimeout(function() {
                             // increment questionNumber argument, then recurse. Advances to next question.
@@ -184,12 +216,10 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                     } else {
                         score = timerSeconds;
                         playerWins();
-                    }
-                        
-
-                    
+                    }    
                 }
-                if (event.target.innerHTML != questionsList[questionNumber].answer && penalizes) {
+
+                if (event.target.innerHTML != questionsList[questionNumber].answer && event.target.getAttribute("penalize") == "true") {
                     descText.textContent = "INCORRECT!";
                     descText.setAttribute("style", "background-color: --correct;");
                     console.log("wrong!!");
@@ -207,6 +237,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
 function playerLoses() {
     console.log("time is up!! player lost!!");
+    timer.textContent = "00:00";
     //titleText = document.getElementById("title-text");
     titleText.textContent = "Time's up!";
     descText.textContent = "";
@@ -217,6 +248,11 @@ function playerWins() {
     console.log("player wins!");
     //titleText = document.getElementById("title-text");
     titleText.textContent = "You win!";
+    descText.textContent = ("Final Score: " + toMMSS(score));
+    optionList.remove();
+
+    // APPEND THE HIGH SCORE FORM ELEMENTS TO THE PAGE
+    quizBox.appendChild(hsForm);
 }
 
 
