@@ -37,8 +37,16 @@ hsForm.appendChild(hsName);
 hsForm.appendChild(hsBtn);
 
 // creating box to display list of high scores
-hsContainer = document.createElement("section");
+var hsContainer = document.createElement("section");
 hsContainer.setAttribute("class", "high-score-container");
+
+var hsFirstPlace = document.createElement("div");
+var hsSecondPlace = document.createElement("div");
+var hsThirdPlace = document.createElement("div");
+var hsFourthPlace = document.createElement("div");
+var hsFifthPlace = document.createElement("div");
+
+var score; // stored outside the quiz function so as to not be overwritten by recursion
 
 // questions
 var questions = [
@@ -93,6 +101,22 @@ var questions = [
     } */
 ];
 
+
+
+// SETTING DEFAULT HIGH SCORES
+// If there are no high scores set by the user, these dummy scores will be there
+var defaultHighScores = [
+    {name: "Mary", score: 35},
+    {name: "Lucas", score: 30},
+    {name: "John", score: 25},
+    {name: "Lucy", score: 15},
+    {name: "Eric", score: 10}
+];
+if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
+    localStorage.setItem("high-scores", JSON.stringify(defaultHighScores));
+}
+
+
 // add event listener to landing page start button and begin the quiz!!
 startBtn.addEventListener("click", startQuiz);
 
@@ -123,9 +147,6 @@ function startQuiz(event) {
 }
 
 
-var score; // stored outside the quiz function so as to not be overwritten by recursion
-
-
 // recursive function which displays a question, then 
 function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
@@ -142,6 +163,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 score = 0;
                 clearInterval(timerInterval);
                 playerLoses();
+                return;
             }
         }, 1000); // timer decrements by 1 every 1 second
     } else {
@@ -151,12 +173,14 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
     }
     
     if (questionNumber >= questionsList.length) {
+        // PLAYER WINS
         // Execute when code attempts to display a question number outside the bounds of the questions list.
         // This case means player wins, having answered all of the questions correctly.
         clearInterval(timerInterval);
-        score = timerSeconds;
-        //console.log("player finished with " + score + " seconds left!");
+        score = toMMSS(timerSeconds);
+        console.log("player finished with " + score + " seconds left!");
         playerWins(score);
+        return;
     } else {
         //console.log("\nBEGIN DISPLAYING QUESTIONS[" + questionNumber + "]");
         // display the question
@@ -212,16 +236,11 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
                     questionNumber++;
 
-                    if (questionNumber <= questionsList.length) {
-                        // wait 1.5 seconds after correct guess before advancing to the next question
-                        setTimeout(function() {
-                            // increment questionNumber argument, then recurse. Advances to next question.
-                            cycleQuestions(questionsList, questionNumber, timerSeconds);
-                        }, 1250);
-                    } else {
-                        score = timerSeconds;
-                        playerWins(score);
-                    }    
+                    // wait 1.5 seconds after correct guess before advancing to the next question
+                    setTimeout(function() {
+                        // increment questionNumber argument, then recurse. Advances to next question.
+                        cycleQuestions(questionsList, questionNumber, timerSeconds);
+                    }, 1250);
                 }
 
                 if (event.target.innerHTML != questionsList[questionNumber].answer && event.target.getAttribute("penalize") == "true") {
@@ -246,13 +265,16 @@ function playerLoses() {
     titleText.textContent = "Time's up!";
     descText.textContent = "";
     optionList.remove();
+    checkForHighScore(timer.textContent);
 }
 
 function playerWins(userScore) {
     //console.log("player wins!");
     titleText.textContent = "You win!";
-    descText.textContent = ("Final Score: " + toMMSS(userScore));
+    console.log("Final score: " + userScore);
+    descText.textContent = ("Final Score: " + userScore);
     optionList.remove();
+    checkForHighScore(userScore);
 
     // APPEND THE HIGH SCORE FORM ELEMENTS TO THE PAGE
     quizBox.appendChild(hsForm);
@@ -260,15 +282,7 @@ function playerWins(userScore) {
 
     // APPEND HIGH SCORES LIST
     // Step 1: make sure there's something in localstorage so we can read it and display it to the page
-    if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
-        localStorage.setItem("high-scores", [
-            {name: "Mary", score: 35},
-            {name: "Lucas", score: 30},
-            {name: "John", score: 25},
-            {name: "Lucy", score: 15},
-            {name: "Eric", score: 10}
-        ]);
-    }
+    
 
     hsBtn.addEventListener("click", function(event) {
         event.preventDefault();
@@ -282,19 +296,22 @@ function playerWins(userScore) {
         
 
         // APPEND HIGH SCORES LIST
-        // We need to create some divs, but to know how many to make, we need to know how many
-        // high scores have already been submitted. So let's first read the high scores data.
-        // If the high scores list is empty, then create some fake, easy high scores.
-
-        if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
-            localStorage.setItem("high-scores", [{name: "Mary", score: 30}, {name: "Lucas", score: 20}]);
-        } else {
-            localStorage.setItem("high-scores", JSON.stringify(highScoreEntry));
-        }
+        // Only the top 5 places will display, so we'll need 5 divs.
+        // Each of those divs will have two children divs; the first has the name, the second their score
         quizBox.append(hsContainer);
     });
 
     
+}
+
+// Handles all highscore-related actions, including displaying new elements on the page.
+function checkForHighScore(scoreString) {
+    // GET SCORE
+    var scoreSplit = scoreString.split(":");
+    var finalScore = ((scoreSplit[0] * 60) + scoreSplit[1]); // converts MM:SS to total seconds
+
+    // CHECK IF SCORE IS A HIGH SCORE
+
 }
 
 function appendToLocalStorage(name, data) {
