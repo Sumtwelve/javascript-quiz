@@ -36,9 +36,6 @@ hsBtn.textContent = "SUBMIT";
 hsForm.appendChild(hsName);
 hsForm.appendChild(hsBtn);
 
-// creating box to display list of high scores
-var hsContainer = document.createElement("section");
-hsContainer.setAttribute("class", "high-score-container");
 
 var hsFirstPlace = document.createElement("div");
 var hsSecondPlace = document.createElement("div");
@@ -106,15 +103,21 @@ var questions = [
 // SETTING DEFAULT HIGH SCORES
 // If there are no high scores set by the user, these dummy scores will be there
 var defaultHighScores = [
-    {name: "Mary", score: 35},
-    {name: "Lucas", score: 30},
-    {name: "John", score: 25},
-    {name: "Lucy", score: 15},
-    {name: "Eric", score: 10}
+    {name: "Mary", score: "00:35"},
+    {name: "Lucas", score: "00:30"},
+    {name: "John", score: "00:25"},
+    {name: "Lucy", score: "00:15"},
+    {name: "Eric", score: "00:10"}
 ];
 if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
     localStorage.setItem("high-scores", JSON.stringify(defaultHighScores));
 }
+
+
+// VIEW HIGH SCORES BUTTON EVENT LISTENER
+viewHiScoresBtn.addEventListener("click", function(event) {
+
+});
 
 
 // add event listener to landing page start button and begin the quiz!!
@@ -125,6 +128,11 @@ function startQuiz(event) {
     // prevent page reloading, remove Start Quiz button
     event.preventDefault();
     startBtn.remove();
+    
+    // remove 'view high scores' button, re-style timer;
+    viewHiScoresBtn.remove();
+    document.querySelector("header").setAttribute("style", "color: white; background-color: var(--purple);")
+
 
     // disables "are you sure you want to leave?" prompt
     setWarningPrompt(false);
@@ -265,7 +273,7 @@ function playerLoses() {
     titleText.textContent = "Time's up!";
     descText.textContent = "";
     optionList.remove();
-    checkForHighScore(timer.textContent);
+    handleHighScores(timer.textContent);
 }
 
 function playerWins(userScore) {
@@ -274,53 +282,106 @@ function playerWins(userScore) {
     console.log("Final score: " + userScore);
     descText.textContent = ("Final Score: " + userScore);
     optionList.remove();
-    checkForHighScore(userScore);
-
-    // APPEND THE HIGH SCORE FORM ELEMENTS TO THE PAGE
-    quizBox.appendChild(hsForm);
-
-
-    // APPEND HIGH SCORES LIST
-    // Step 1: make sure there's something in localstorage so we can read it and display it to the page
-    
-
-    hsBtn.addEventListener("click", function(event) {
-        event.preventDefault();
-        var highScoreEntry = {
-            name: hsName.value,
-            score: userScore
-        }
-
-        console.log(highScoreEntry);
-
-        
-
-        // APPEND HIGH SCORES LIST
-        // Only the top 5 places will display, so we'll need 5 divs.
-        // Each of those divs will have two children divs; the first has the name, the second their score
-        quizBox.append(hsContainer);
-    });
-
-    
+    handleHighScores(userScore);
 }
+
 
 // Handles all highscore-related actions, including displaying new elements on the page.
-function checkForHighScore(scoreString) {
+// scoreString: the user's score, formated as MM:SS
+function handleHighScores(scoreString) {
+
     // GET SCORE
-    var scoreSplit = scoreString.split(":");
-    var finalScore = ((scoreSplit[0] * 60) + scoreSplit[1]); // converts MM:SS to total seconds
+    var finalScore = fromMMSStoS(scoreString);
 
-    // CHECK IF SCORE IS A HIGH SCORE
+    // READ DATA FROM LOCAL STORAGE, DO NOT PROCEED IF JSON PARSING FAILS
+    var highScoreData = JSON.parse(localStorage.getItem("high-scores"));
+    if (highScoreData != null) {
 
-}
+        // STORE INCOMPLETE DATA INTO LOCAL STORAGE
+        // I know the high score name input box doesn't have a value yet.
+        // I know this is setting a blank space in the data.
+        // I will store the blank name into LocalStorage and re-update it when user
+        // clicks SUBMIT. This will allow me to display a blank spot on the table
+        // and fill it in as the user types their name, which is the effect I want.
+        highScoreData.pop(); // 5th place gets deleted to make room for new score
+        highScoreData.splice(place, 0, {name: hsName.value, score: scoreString});
+        localStorage.setItem("high-scores", JSON.stringify(highScoreData));
 
-function appendToLocalStorage(name, data) {
+        //CHECK IF SCORE IS A HIGH SCORE
+        var gotHighScore = false;
+        var place = userScoreboardPlace(finalScore);
+        console.log("user got " + (place + 1) + "th place!");
+        if (place <= 4) { // if 5th place or better
+            
+            // flag to be used later
+            gotHighScore = true;
 
+            // APPEND THE HIGH SCORE FORM ELEMENTS TO THE PAGE
+            // NOTE that this only appears because you got a high score
+            quizBox.appendChild(hsForm);
+
+            // add event listener to "SUBMIT" button on high score form
+            // REMEMBER that this code does not activate upon getting a high score!!
+            // It only activates on clicking the SUBMIT button!!
+            // That kept throwing me off!!
+            hsBtn.addEventListener("click", function(event) {
+                event.preventDefault();
+                var highScoreEntry = {
+                    name: hsName.value,
+                    score: userScore
+                }
+
+                // debug stuff
+                console.log(highScoreEntry);
+
+                // update the data in local storage
+                // yes I know I already wrote this code above. This however won't be executed until later.
+                highScoreData.pop(); // 5th place gets deleted to make room for new score
+                highScoreData.splice(place, 0, {name: hsName.value, score: scoreString});
+                localStorage.setItem("high-scores", JSON.stringify(highScoreData));
+            });
+        }
+
+        // PLACE TEXT INTO THE TABLE
+        // NOTE: I hadn't used jQuery in this project before, but I think I have to use it now.
+        // So just in case you were wondering why this is the only place I'm using jQuery,
+        // it's because we hadn't yet covered it in class by the time I started this project
+        // and I never needed to use it until now.
+        $("#name-col-header").text("Name");
+        $("#score-col-header").text("Score");
+        
+        for (var i = 0; i < 6; i++) {
+            for (var j = 0; j < 2; j++) {
+
+            }
+        }
+
+
+     
+    } else { // if JSON parsing failed
+        descText.textContent = "ERROR: FAILED TO READ HIGH SCORE DATA";
+    }
 }
 
 // returns void. takes user score and places it on leaderboard, which is stored in Local Storage
-function placeUserScore(score) {
-
+function userScoreboardPlace(userScore) {
+    // load all highscore data into variable
+    var highScoreData = JSON.parse(localStorage.getItem("high-scores"));
+    if (highScoreData != null) { // if JSON parsing failed, just abort
+        for (var i = 0; i < 5; i++) {
+            // User's score will be compared to each score on the scoreboard.
+            var thisScore = fromMMSStoS(highScoreData[i].score);
+            // console.log("\nthisScore: " + thisScore);
+            if (userScore > thisScore) { // user placed above current iteration's score :)
+                return i; // this is zero-based index! 'i' here can't be used as 'i'th place!
+            } else if (userScore == thisScore) { // user placed below current iteration's score :(
+                return i + 1; // this is zero-based index! 'i' here can't be used as 'i'th place!
+            }
+        }
+    } else {
+        console.log("ERROR: JSON parsing in userScoreboardPlace returned null.")
+        return null;
+    }
 }
 
 
@@ -360,6 +421,14 @@ function toMMSS(seconds) {
     }
 
     return extraZeroM + minutes + ":" + extraZeroS + remainingSeconds;
+}
+
+// takes MM:SS format and returns it as total seconds
+function fromMMSStoS(mmss) {
+    var split = mmss.split(":");
+    // console.log("mmss: " + mmss);
+    // console.log("split: " + split);
+    return (parseInt(split[0]) * 60) + (parseInt(split[1]));
 }
 
 
