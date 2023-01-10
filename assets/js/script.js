@@ -19,11 +19,12 @@ var option3 = document.createElement("li");
 var option4 = document.createElement("li"); // maximum 4 choices per question
 var optionListItems = [option1, option2, option3, option4]; // placed into array for easier textContent-setting later
 
-// creating input field for entering your name when you get a high score
+// creating form for submitting a high score
 var hsForm = document.createElement("form");
 hsForm.setAttribute("method", "POST");
 
 var hsName = document.createElement("input");
+hsName.required = true;
 hsName.setAttribute("type", "text");
 hsName.setAttribute("name", "user-name");
 hsName.setAttribute("placeholder", "Name");
@@ -32,16 +33,18 @@ var hsBtn = document.createElement("button");
 hsBtn.setAttribute("type", "button");
 hsBtn.textContent = "SUBMIT";
 
-var hsList = document.createElement("section");
-
 hsForm.appendChild(hsName);
 hsForm.appendChild(hsBtn);
+
+// creating box to display list of high scores
+hsContainer = document.createElement("section");
+hsContainer.setAttribute("class", "high-score-container");
 
 // questions
 var questions = [
     {
         questionText: "Using the \"+\" operator joins multiple values into one _____________ value.",
-        options: ["array", "string", "integer", "regular expression"],
+        options: ["array", "string", "integer", "undefined; the \"+\" operator can only be used on strings"],
         answer: "string"
     }//, {
     //     questionText: "How do you stop a setInterval() function from repeating?",
@@ -93,19 +96,14 @@ var questions = [
 // add event listener to landing page start button and begin the quiz!!
 startBtn.addEventListener("click", startQuiz);
 
+// this is the "main" or "master" function that initiates the different sections of the quiz
 function startQuiz(event) {
     // prevent page reloading, remove Start Quiz button
     event.preventDefault();
     startBtn.remove();
 
-    // enables "are you sure you want to leave?" prompt
-    // window.onbeforeunload = function() {
-    //     return false;
-    // };
-
-    // reinitialize timer just in case
-    // timer.textContent = "05:00";
-    // timeLeft = 300;
+    // disables "are you sure you want to leave?" prompt
+    setWarningPrompt(false);
 
     // erase title text, make sure option list elements are blank and append them to page
     titleText.textContent = "";
@@ -120,14 +118,18 @@ function startQuiz(event) {
     var shuffQuestions = shuffle(questions); // suffles the question order. Random question order makes for a better quiz imo
     cycleQuestions(shuffQuestions, 0, 60); // questions list, start at question, seconds on the timer
 
+    setWarningPrompt(false); // was set to true during quiz, turn it back off
+
 }
 
+
 var score; // stored outside the quiz function so as to not be overwritten by recursion
+
 
 // recursive function which displays a question, then 
 function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
-    console.log(questionsList);
+    //console.log(questionsList);
 
     // START THE TIMER IF WE ARE ON THE FIRST QUESTION
     if (questionNumber == 0) {
@@ -142,34 +144,42 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 playerLoses();
             }
         }, 1000); // timer decrements by 1 every 1 second
+    } else {
+        // enables "are you sure you want to leave?" prompt
+        // only activates after question 1, or in other words, after the user has made progress on the quiz
+        setWarningPrompt(false);
     }
     
     if (questionNumber >= questionsList.length) {
-        // execute when code attempts to display a question number outside the bounds of the questions list
+        // Execute when code attempts to display a question number outside the bounds of the questions list.
+        // This case means player wins, having answered all of the questions correctly.
         clearInterval(timerInterval);
         score = timerSeconds;
-        console.log("player finished with " + score + " seconds left!");
-        playerWins();
+        //console.log("player finished with " + score + " seconds left!");
+        playerWins(score);
     } else {
-        console.log("\nBEGIN DISPLAYING QUESTIONS[" + questionNumber + "]");
-        // DISPLAY THE QUESTION AND OPTIONS
+        //console.log("\nBEGIN DISPLAYING QUESTIONS[" + questionNumber + "]");
+        // display the question
         titleText.textContent = questionsList[questionNumber].questionText;
         descText.textContent = "";
 
-        shuffOptions = shuffle(questionsList[questionNumber].options);
-        
-        console.log("correct answer is now " + questionsList[questionNumber].answer);
-
+        // give space for the Correct!/Incorrect! text box to appear
         optionList.setAttribute("style", "margin-top: 100px;")
 
+        // We need to hide the last two list items for true/false questions.
+        // There's probably a better way to do this, like setting all list items to display:none
+        // and only revealing the same number of them as there are options for the current question.
         if (questionsList[questionNumber].options.length == 2) {
             option3.setAttribute("style", "display: none;");
             option4.setAttribute("style", "display: none;");
-        } else {
+        } else { // set all 4 option elements to visible, resets any invisibility applied regardless of when
             for (var i = 0; i < questionsList[questionNumber].options.length; i++) {
                 optionListItems[i].setAttribute("style", "display: visible;")
             }
         }
+
+        // randomize each question's available options
+        shuffOptions = shuffle(questionsList[questionNumber].options);
 
         // SET TEXT, STYLE, AND PLACE CLICK LISTENERS ON OPTIONS
         // this is the main logic of the quiz
@@ -182,15 +192,10 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
             // add listeners to each option element
             optionListItems[i].addEventListener("click", function(event) {
-                
-                // var target = event.target;
-                // var targetText = event.target.innerHTML;
 
-                var penalizes = event.target.getAttribute("penalize") == "true";
-                var advances = event.target.getAttribute("advance") == "true";
-
-                console.log("user selected option " + event.target.innerHTML);
-                console.log("that is " + (event.target.innerHTML == questionsList[questionNumber].answer));
+                // debug stuff
+                //console.log("user selected option " + event.target.innerHTML);
+                //console.log("that is " + (event.target.innerHTML == questionsList[questionNumber].answer));
 
                 // On click, change top margin so that when INCORRECT or CORRECT text appears,
                 // the list isn't shifted down. There's probably a better way to do this.
@@ -199,11 +204,11 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 if (event.target.innerHTML == questionsList[questionNumber].answer && event.target.getAttribute("advance") == "true") {
                     score = timerSeconds;
                     descText.textContent = "CORRECT!";
-                    console.log("that's right! advances!")
+                    //console.log("that's right! advances!")
                     event.target.setAttribute("penalize", "false");
                     event.target.setAttribute("advance", "false");
                     event.target.setAttribute("style", "background: #00BB00;");
-                    console.log("advancing to questions[" + (questionNumber + 1) + "]");
+                    //console.log("advancing to questions[" + (questionNumber + 1) + "]");
 
                     questionNumber++;
 
@@ -215,14 +220,14 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                         }, 1250);
                     } else {
                         score = timerSeconds;
-                        playerWins();
+                        playerWins(score);
                     }    
                 }
 
                 if (event.target.innerHTML != questionsList[questionNumber].answer && event.target.getAttribute("penalize") == "true") {
                     descText.textContent = "INCORRECT!";
                     descText.setAttribute("style", "background-color: --correct;");
-                    console.log("wrong!!");
+                    //console.log("wrong!!");
                     event.target.setAttribute("style", "background: red;");
                     event.target.setAttribute("penalize", "false");
                     event.target.setAttribute("advance", "false");
@@ -236,23 +241,69 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
 
 
 function playerLoses() {
-    console.log("time is up!! player lost!!");
+    //console.log("time is up!! player lost!!");
     timer.textContent = "00:00";
-    //titleText = document.getElementById("title-text");
     titleText.textContent = "Time's up!";
     descText.textContent = "";
     optionList.remove();
 }
 
-function playerWins() {
-    console.log("player wins!");
-    //titleText = document.getElementById("title-text");
+function playerWins(userScore) {
+    //console.log("player wins!");
     titleText.textContent = "You win!";
-    descText.textContent = ("Final Score: " + toMMSS(score));
+    descText.textContent = ("Final Score: " + toMMSS(userScore));
     optionList.remove();
 
     // APPEND THE HIGH SCORE FORM ELEMENTS TO THE PAGE
     quizBox.appendChild(hsForm);
+
+
+    // APPEND HIGH SCORES LIST
+    // Step 1: make sure there's something in localstorage so we can read it and display it to the page
+    if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
+        localStorage.setItem("high-scores", [
+            {name: "Mary", score: 35},
+            {name: "Lucas", score: 30},
+            {name: "John", score: 25},
+            {name: "Lucy", score: 15},
+            {name: "Eric", score: 10}
+        ]);
+    }
+
+    hsBtn.addEventListener("click", function(event) {
+        event.preventDefault();
+        var highScoreEntry = {
+            name: hsName.value,
+            score: userScore
+        }
+
+        console.log(highScoreEntry);
+
+        
+
+        // APPEND HIGH SCORES LIST
+        // We need to create some divs, but to know how many to make, we need to know how many
+        // high scores have already been submitted. So let's first read the high scores data.
+        // If the high scores list is empty, then create some fake, easy high scores.
+
+        if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-scores") == []) {
+            localStorage.setItem("high-scores", [{name: "Mary", score: 30}, {name: "Lucas", score: 20}]);
+        } else {
+            localStorage.setItem("high-scores", JSON.stringify(highScoreEntry));
+        }
+        quizBox.append(hsContainer);
+    });
+
+    
+}
+
+function appendToLocalStorage(name, data) {
+
+}
+
+// returns void. takes user score and places it on leaderboard, which is stored in Local Storage
+function placeUserScore(score) {
+
 }
 
 
@@ -264,22 +315,30 @@ function playerWins() {
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// takes boolean and enables or disables the window prompt "Are you sure you want to leave this page?"
+function setWarningPrompt(state) {
+    window.onbeforeunload = function() {
+        return state;
+    };
+}
+
+
 // toMMSS() takes an integer seconds and converts it to a string in MM:SS format
 function toMMSS(seconds) {
     var minutes = Math.trunc(seconds / 60);
     var remainingSeconds = seconds % 60;
 
-    // this is a bit hacky but let me explain what it is
-    // if number on either side of colon is not big enough to take two spaces,
+    // this is a bit hacky but let me explain what it is.
+    // If number on either side of colon is not big enough to take two spaces,
     // program fills the space with an extra 0.
     // Necessary when minutes or seconds is less than 10, or when seconds is a multiple of 60.
-    // Thus it mimics the behavior of real digital clocks, which never display the number 60.
+    // Thus it mimics the behavior of real digital clocks, which never display 60 in the seconds place.
     var extraZeroM = "";
     var extraZeroS = "";
     if (minutes < 10) {
         extraZeroM = "0";
     }
-    if (remainingSeconds < 10 || (remainingSeconds % 60) == 0) {
+    if (remainingSeconds < 10 || (remainingSeconds % 60 == 0)) {
         extraZeroS = "0";
     }
 
