@@ -53,47 +53,47 @@ var questions = [
         questionText: "Using the \"+\" operator joins multiple values into one _____________ value.",
         options: ["array", "string", "integer", "undefined; the \"+\" operator can only be used on strings"],
         answer: "string"
-    }//, {
-    //     questionText: "How do you stop a setInterval() function from repeating?",
-    //     options: ["break", "stopTimer()", "clearInterval()", "timer.remove()"],
-    //     answer: "clearInterval()"
-    // }, {
-    //     questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
-    //     options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
-    //     answer: "parameters, arguments"
-    // }, {
-    //     questionText: "What is the jQuery symbol?",
-    //     options: ["%", "#", "$", "!"],
-    //     answer: "$"
-    // }, {
-    //     questionText: "Which of these is NOT a valid EventListener type for an Element object?",
-    //     options: ["wheel", "copy", "keydown", "rightclick"],
-    //     answer: "rightclick"
-    // }, {
-    //     questionText: "What does \"href\" stand for?",
-    //     options: ["href; it stands for nothing", "hypertext reference", "HTML reflow", "hypertext reflection"],
-    //     answer: "hypertext reference"
-    // }, {
-    //     questionText: "jQuery is an example of a(n) _____________ .",
-    //     options: ["GitHub repository", "3rd-Party API", "Webkit", "JS Development Kit"],
-    //     answer: "3rd-Party API"
-    // }, {
-    //     questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
-    //     options: ["var element = document.getElementById(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
-    //     answer: "var element = document.getElementByID(\"box\");"
-    // }, {
-    //     questionText: "Objects are initialized with _____________ .",
-    //     options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
-    //     answer: "curly braces"
-    // }, {
-    //     questionText: "JavaScript was invented in which year?",
-    //     options: ["1995", "1997", "1994", "1996"],
-    //     answer: "1995"
-    // }, {
-    //     questionText: "TRUE OR FALSE: A string, being just an array of characters, has access to all of the native array methods.",
-    //     options: ["true", "false"],
-    //     answer: "false"
-    /*}/*, {
+    }, {
+        questionText: "How do you stop a setInterval() function from repeating?",
+        options: ["break", "stopTimer()", "clearInterval()", "timer.remove()"],
+        answer: "clearInterval()"
+    }, {
+        questionText: "When defining a function, its variables are called _____________ . When calling a function, they are _____________ .",
+        options: ["parameters, arguments", "variables, values", "attributes, arguments", "properties, values"],
+        answer: "parameters, arguments"
+    }, {
+        questionText: "What is the jQuery symbol?",
+        options: ["%", "#", "$", "!"],
+        answer: "$"
+    }, {
+        questionText: "Which of these is NOT a valid EventListener type for an Element object?",
+        options: ["wheel", "copy", "keydown", "rightclick"],
+        answer: "rightclick"
+    }, {
+        questionText: "What does \"href\" stand for?",
+        options: ["href; it stands for nothing", "hypertext reference", "HTML reflow", "hypertext reflection"],
+        answer: "hypertext reference"
+    }, {
+        questionText: "jQuery is an example of a(n) _____________ .",
+        options: ["GitHub repository", "3rd-Party API", "Webkit", "JS Development Kit"],
+        answer: "3rd-Party API"
+    }, {
+        questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
+        options: ["var element = document.getElementById(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
+        answer: "var element = document.getElementByID(\"box\");"
+    }, {
+        questionText: "Objects are initialized with _____________ .",
+        options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
+        answer: "curly braces"
+    }, {
+        questionText: "JavaScript was invented in which year?",
+        options: ["1995", "1997", "1994", "1996"],
+        answer: "1995"
+    }, {
+        questionText: "TRUE OR FALSE: A string, being just an array of characters, has access to all of the native array methods.",
+        options: ["true", "false"],
+        answer: "false"
+    }/*, {
         questionText: "",
         options: [""],
         answer: ""
