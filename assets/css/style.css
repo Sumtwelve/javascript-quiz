@@ -157,8 +157,29 @@ form button:hover {
     border-color: var(--purple);
 }
 
-/* #high-scores-container {
+.high-scores-container {
+    width: 30px;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+#high-scores-table {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-} */
+    border-collapse: separate;
+    margin-top: 40px;
+    font-size: 40px;
+}
+
+tbody, tr, th, td {
+    width: 100%;
+}
+
+tr:nth-child(even) {
+    background-color: #AAAAAA;
+}
+
+th, td {
+    padding: 20px;
+}

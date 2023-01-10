@@ -5,6 +5,10 @@ var viewHiScoresBtn = document.getElementById("view-high-scores-btn"); //a
 // Capture header element
 var headerEl = document.getElementById("header");
 
+// grab and style table
+var tableContainer = $(".high-scores-container")
+tableContainer.css("display", "none");
+
 // Timer is in a div, idk MM:SS text formatting so I put minutes and seconds
 var timer = document.getElementById("timer"); //span
 
@@ -39,12 +43,6 @@ hsBtn.textContent = "SUBMIT";
 hsForm.appendChild(hsName);
 hsForm.appendChild(hsBtn);
 
-
-var hsFirstPlace = document.createElement("div");
-var hsSecondPlace = document.createElement("div");
-var hsThirdPlace = document.createElement("div");
-var hsFourthPlace = document.createElement("div");
-var hsFifthPlace = document.createElement("div");
 
 // TODO: is this variable useful?? Do I need it?? Is it messing things up??
 var score; // stored outside the quiz function so as to not be overwritten by recursion
@@ -354,6 +352,7 @@ function handleHighScores(scoreString) {
         // it's because we hadn't yet covered it in class by the time I started this project
         // and I never needed to use it until now. But I think you can tell by how compact this is
         // why exactly I suddenly thought I needed it. This would have been a nightmare without jQuery.
+        tableContainer.css("display", "initial");
         var tableEl = $("#high-scores-table");
         $("#name-col-header").text("Name");
         $("#score-col-header").text("Score");
