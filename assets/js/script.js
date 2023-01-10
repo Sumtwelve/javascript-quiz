@@ -2,6 +2,9 @@
 var startBtn = document.getElementById("start-quiz-btn");
 var viewHiScoresBtn = document.getElementById("view-high-scores-btn"); //a
 
+// Capture header element
+var headerEl = document.getElementById("header");
+
 // Timer is in a div, idk MM:SS text formatting so I put minutes and seconds
 var timer = document.getElementById("timer"); //span
 
@@ -43,6 +46,7 @@ var hsThirdPlace = document.createElement("div");
 var hsFourthPlace = document.createElement("div");
 var hsFifthPlace = document.createElement("div");
 
+// TODO: is this variable useful?? Do I need it?? Is it messing things up??
 var score; // stored outside the quiz function so as to not be overwritten by recursion
 
 // questions
@@ -77,7 +81,7 @@ var questions = [
     //     answer: "3rd-Party API"
     // }, {
     //     questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
-    //     options: ["var element = document.getElementByID(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
+    //     options: ["var element = document.getElementById(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
     //     answer: "var element = document.getElementByID(\"box\");"
     // }, {
     //     questionText: "Objects are initialized with _____________ .",
@@ -131,7 +135,7 @@ function startQuiz(event) {
     
     // remove 'view high scores' button, re-style timer;
     viewHiScoresBtn.remove();
-    document.querySelector("header").setAttribute("style", "color: white; background-color: var(--purple);")
+    headerEl.setAttribute("style", "color: white; background-color: var(--purple);")
 
 
     // disables "are you sure you want to leave?" prompt
@@ -199,7 +203,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
         optionList.setAttribute("style", "margin-top: 100px;")
 
         // We need to hide the last two list items for true/false questions.
-        // There's probably a better way to do this, like setting all list items to display:none
+        // FIXME: There's probably a better way to do this, like setting all list items to display:none
         // and only revealing the same number of them as there are options for the current question.
         if (questionsList[questionNumber].options.length == 2) {
             option3.setAttribute("style", "display: none;");
@@ -229,7 +233,7 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
                 //console.log("user selected option " + event.target.innerHTML);
                 //console.log("that is " + (event.target.innerHTML == questionsList[questionNumber].answer));
 
-                // On click, change top margin so that when INCORRECT or CORRECT text appears,
+                // FIXME: On click, change top margin so that when INCORRECT or CORRECT text appears,
                 // the list isn't shifted down. There's probably a better way to do this.
                 optionList.setAttribute("style", "margin-top: 27px;");
 
@@ -281,6 +285,7 @@ function playerWins(userScore) {
     titleText.textContent = "You win!";
     console.log("Final score: " + userScore);
     descText.textContent = ("Final Score: " + userScore);
+    headerEl.setAttribute("style", "color: white; background-color: var(--dark-purple);");
     optionList.remove();
     handleHighScores(userScore);
 }
@@ -297,6 +302,11 @@ function handleHighScores(scoreString) {
     var highScoreData = JSON.parse(localStorage.getItem("high-scores"));
     if (highScoreData != null) {
 
+        //CHECK IF SCORE IS A HIGH SCORE
+        var gotHighScore = false;
+        var place = userScoreboardPlace(finalScore);
+        console.log("user got " + (place + 1) + "th place!");
+
         // STORE INCOMPLETE DATA INTO LOCAL STORAGE
         // I know the high score name input box doesn't have a value yet.
         // I know this is setting a blank space in the data.
@@ -306,11 +316,7 @@ function handleHighScores(scoreString) {
         highScoreData.pop(); // 5th place gets deleted to make room for new score
         highScoreData.splice(place, 0, {name: hsName.value, score: scoreString});
         localStorage.setItem("high-scores", JSON.stringify(highScoreData));
-
-        //CHECK IF SCORE IS A HIGH SCORE
-        var gotHighScore = false;
-        var place = userScoreboardPlace(finalScore);
-        console.log("user got " + (place + 1) + "th place!");
+        
         if (place <= 4) { // if 5th place or better
             
             // flag to be used later
@@ -346,13 +352,17 @@ function handleHighScores(scoreString) {
         // NOTE: I hadn't used jQuery in this project before, but I think I have to use it now.
         // So just in case you were wondering why this is the only place I'm using jQuery,
         // it's because we hadn't yet covered it in class by the time I started this project
-        // and I never needed to use it until now.
+        // and I never needed to use it until now. But I think you can tell by how compact this is
+        // why exactly I suddenly thought I needed it. This would have been a nightmare without jQuery.
+        var tableEl = $("#high-scores-table");
         $("#name-col-header").text("Name");
         $("#score-col-header").text("Score");
         
-        for (var i = 0; i < 6; i++) {
+        for (var i = 1; i < 6; i++) {
             for (var j = 0; j < 2; j++) {
-
+                var nameAndScore = [highScoreData[i-1].name, highScoreData[i-1].score];
+                //                                     i                j
+                tableEl.children().eq(0).children().eq(i).children().eq(j).text(nameAndScore[j]);
             }
         }
 

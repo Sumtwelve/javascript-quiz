@@ -157,8 +157,8 @@ form button:hover {
     border-color: var(--purple);
 }
 
-.high-score-container {
+/* #high-scores-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-}
+} */
