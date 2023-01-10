@@ -312,7 +312,7 @@ function handleHighScores(scoreString) {
         // clicks SUBMIT. This will allow me to display a blank spot on the table
         // and fill it in as the user types their name, which is the effect I want.
         highScoreData.pop(); // 5th place gets deleted to make room for new score
-        highScoreData.splice(place, 0, {name: hsName.value, score: scoreString});
+        highScoreData.splice(place, 0, {name: "(enter name here!)", score: scoreString});
         localStorage.setItem("high-scores", JSON.stringify(highScoreData));
         
         if (place <= 4) { // if 5th place or better
@@ -330,9 +330,12 @@ function handleHighScores(scoreString) {
             // That kept throwing me off!!
             hsBtn.addEventListener("click", function(event) {
                 event.preventDefault();
+
+                setWarningPrompt(false);
+
                 var highScoreEntry = {
                     name: hsName.value,
-                    score: userScore
+                    score: scoreString
                 }
 
                 // debug stuff
@@ -340,8 +343,8 @@ function handleHighScores(scoreString) {
 
                 // update the data in local storage
                 // yes I know I already wrote this code above. This however won't be executed until later.
-                highScoreData.pop(); // 5th place gets deleted to make room for new score
-                highScoreData.splice(place, 0, {name: hsName.value, score: scoreString});
+                //highScoreData.pop(); // 5th place gets deleted to make room for new score
+                highScoreData.splice(place, 1, {name: hsName.value, score: scoreString});
                 localStorage.setItem("high-scores", JSON.stringify(highScoreData));
             });
         }
@@ -360,11 +363,20 @@ function handleHighScores(scoreString) {
         for (var i = 1; i < 6; i++) {
             for (var j = 0; j < 2; j++) {
                 var nameAndScore = [highScoreData[i-1].name, highScoreData[i-1].score];
-                //                                     i                j
-                tableEl.children().eq(0).children().eq(i).children().eq(j).text(nameAndScore[j]);
+                var currentTableCell = tableEl.children().eq(0).children().eq(i).children().eq(j);
+                currentTableCell.text(nameAndScore[j]);
+
+                var prevTableCell = tableEl.children().eq(0).children().eq(i).children().eq(j-1);
+
+                if (i - 1 == place) {
+                    var nameSpaceToFill = prevTableCell;
+                }
             }
         }
 
+        hsName.addEventListener("keyup", function(event) {
+            nameSpaceToFill.text(hsName.value);
+        });
 
      
     } else { // if JSON parsing failed
@@ -405,7 +417,11 @@ function userScoreboardPlace(userScore) {
 // takes boolean and enables or disables the window prompt "Are you sure you want to leave this page?"
 function setWarningPrompt(state) {
     window.onbeforeunload = function() {
-        return state;
+        if (state) {
+            return true;
+        } else {
+            return;
+        }
     };
 }
 
