@@ -9,7 +9,7 @@
         <title>JavaScript Quiz!</title>
     </head>
     <body>
-        <header>
+        <header id="header">
             <!-- Header contains the timer and a button to view high scores -->
             <a id="view-high-scores-btn" href="#high-scores">View high scores</a>
             <div id="timer-container" class="timer-container">TIME // <span id="timer">01:00</span></div>
@@ -25,14 +25,42 @@
                 <p id="desc-text" class="desc-text">Answer as many questions as you can within the time limit.<br>Each incorrect answer will remove ten seconds from the timer, so be careful!</p>
                 <button id="start-quiz-btn">Start Quiz</button>
             </div>
+            <section class="high-scores-container">
+                <table id="high-scores-table">
+                    <tr id="table-header-row">
+                        <th id="name-col-header"></th>
+                        <th id="score-col-header"></th>
+                    </tr>
+                    <tr id="first-place-row">
+                        <td id="1-name"></td>
+                        <td id="1-score"></td>
+                    </tr>
+                    <tr id="second-place-row">
+                        <td id="2-name"></td>
+                        <td id="2-score"></td>
+                    </tr>
+                    <tr id="third-place-row">
+                        <td id="3-name"></td>
+                        <td id="3-score"></td>
+                    </tr>
+                    <tr id="fourth-place-row">
+                        <td id="4-name"></td>
+                        <td id="4-score"></td>
+                    </tr>
+                    <tr id="fifth-place-row">
+                        <td id="5-name"></td>
+                        <td id="5-score"></td>
+                    </tr>
+                </table>
+            </section>
         </main>
 
 
         <footer>
-            <!-- Footer contains copyright information -->
             <div>&copy; 2023 Noah Nielsen // Sumtwelve</div>
         </footer>
 
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
         <script src="./assets/js/script.js"></script>
     </body>
 </html>

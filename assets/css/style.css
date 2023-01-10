@@ -14,23 +14,35 @@ main {
     display: block;
     width: 80%;
     margin: auto;
+    margin-top: 30vh;
     text-align: center;
 }
 
 header {
-    margin-bottom: 10vh;
+    position: fixed;
+    top: 0;
+    left: 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+    column-gap: 7vw;
+    width: 100%;
+    padding-top: 15px;
+    padding-bottom: 10px;
+    background-color: white;
+    transition: all 0.3s ease;
 }
 
 footer {
     position: fixed;
     text-align: center;
     width: 100%;
-    bottom: 20px;
+    bottom: 0;
     left: 0;
     margin-top: 100px;
     padding: 0;
+    padding-bottom: 10px;
+    padding-top: 5px;
+    background-color: white;
 }
 
 
@@ -113,6 +125,7 @@ li:hover {
 form {
     margin-top: 30px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     column-gap: 30px;
 }
@@ -142,4 +155,31 @@ form button {
 form button:hover {
     background-color: var(--purple);
     border-color: var(--purple);
+}
+
+.high-scores-container {
+    width: 30px;
+    margin-left: 0;
+    padding-left: 0;
+}
+
+#high-scores-table {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-collapse: separate;
+    margin-top: 40px;
+    font-size: 40px;
+}
+
+tbody, tr, th, td {
+    width: 100%;
+}
+
+tr:nth-child(even) {
+    background-color: #AAAAAA;
+}
+
+th, td {
+    padding: 20px;
 }
