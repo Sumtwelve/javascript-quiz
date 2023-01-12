@@ -80,7 +80,7 @@ var questions = [
     }, {
         questionText: "Which of these correctly \"grabs\" an HTML element for use in a script?",
         options: ["var element = document.getElementById(\"box\");", "li = document.getElement(div a);", "var h1EL = document.html.body.h1;", "textBox = document.createElement(\"input\")"],
-        answer: "var element = document.getElementByID(\"box\");"
+        answer: "var element = document.getElementById(\"box\");"
     }, {
         questionText: "Objects are initialized with _____________ .",
         options: ["curly braces", "square brackets", "parentheses", "angle brackets"],
@@ -116,10 +116,10 @@ if (localStorage.getItem("high-scores") == null || localStorage.getItem("high-sc
 }
 
 
-// VIEW HIGH SCORES BUTTON EVENT LISTENER
-viewHiScoresBtn.addEventListener("click", function(event) {
+// // VIEW HIGH SCORES BUTTON EVENT LISTENER
+// viewHiScoresBtn.addEventListener("click", function(event) {
 
-});
+// });
 
 
 // add event listener to landing page start button and begin the quiz!!
@@ -135,6 +135,9 @@ function startQuiz(event) {
     viewHiScoresBtn.remove();
     headerEl.setAttribute("style", "color: white; background-color: var(--purple);")
 
+    // fix styling on titleText
+    titleText.setAttribute("style", "margin-top: 0;");
+    titleText.setAttribute("style", "padding-top: 0;");
 
     // disables "are you sure you want to leave?" prompt
     setWarningPrompt(false);
@@ -275,7 +278,7 @@ function playerLoses() {
     titleText.textContent = "Time's up!";
     descText.textContent = "";
     optionList.remove();
-    handleHighScores(timer.textContent);
+    handleHighScores("00:00"); // player loses means timer ran out, which means score is zero
 }
 
 function playerWins(userScore) {
@@ -293,6 +296,10 @@ function playerWins(userScore) {
 // scoreString: the user's score, formated as MM:SS
 function handleHighScores(scoreString) {
 
+
+    // for later
+    var nameSpaceToFill;
+
     // GET SCORE
     var finalScore = fromMMSStoS(scoreString);
 
@@ -301,9 +308,9 @@ function handleHighScores(scoreString) {
     if (highScoreData != null) {
 
         //CHECK IF SCORE IS A HIGH SCORE
-        var gotHighScore = false;
+        var gotHighScore = false; // by default, user did not get high score
         var place = userScoreboardPlace(finalScore);
-        console.log("user got " + (place + 1) + "th place!");
+        
 
         // STORE INCOMPLETE DATA INTO LOCAL STORAGE
         // I know the high score name input box doesn't have a value yet.
@@ -311,12 +318,14 @@ function handleHighScores(scoreString) {
         // I will store the blank name into LocalStorage and re-update it when user
         // clicks SUBMIT. This will allow me to display a blank spot on the table
         // and fill it in as the user types their name, which is the effect I want.
-        highScoreData.pop(); // 5th place gets deleted to make room for new score
-        highScoreData.splice(place, 0, {name: "(enter name here!)", score: scoreString});
+        ///highScoreData.pop(); // 5th place gets deleted to make room for new score
+        highScoreData.splice(place, 0, {name: "(enter name above!)", score: scoreString});
         localStorage.setItem("high-scores", JSON.stringify(highScoreData));
         
         if (place <= 4) { // if 5th place or better
-            
+            // debug stuff
+            console.log("user got " + (place + 1) + "th place!");
+
             // flag to be used later
             gotHighScore = true;
 
@@ -343,10 +352,18 @@ function handleHighScores(scoreString) {
 
                 // update the data in local storage
                 // yes I know I already wrote this code above. This however won't be executed until later.
-                //highScoreData.pop(); // 5th place gets deleted to make room for new score
+                highScoreData.pop(); // 5th place gets deleted to make room for new score
                 highScoreData.splice(place, 1, {name: hsName.value, score: scoreString});
                 localStorage.setItem("high-scores", JSON.stringify(highScoreData));
+
+                nameSpaceToFill.css("color", "black");
             });
+        } else {
+            console.log("user did not make leaderboard");
+            console.log("variable highScoreData: " + JSON.stringify(highScoreData));
+            highScoreData.pop();
+            localStorage.setItem("high-scores", JSON.stringify(highScoreData));
+            console.log("variable highScoreData after pop: " + JSON.stringify(highScoreData));
         }
 
         // PLACE TEXT INTO THE TABLE
@@ -376,6 +393,7 @@ function handleHighScores(scoreString) {
 
         hsName.addEventListener("keyup", function(event) {
             nameSpaceToFill.text(hsName.value);
+            nameSpaceToFill.css("color", "red");
         });
 
      
@@ -387,20 +405,31 @@ function handleHighScores(scoreString) {
 // returns void. takes user score and places it on leaderboard, which is stored in Local Storage
 function userScoreboardPlace(userScore) {
     // load all highscore data into variable
+    console.log("userScoreBoardPlace() says: userScore = " + userScore);
     var highScoreData = JSON.parse(localStorage.getItem("high-scores"));
-    if (highScoreData != null) { // if JSON parsing failed, just abort
+    if (highScoreData != null) { // if JSON parsing did not fail
+        console.log("\n\nCOMMENCING USERSCOREBOARDPLACE()");
         for (var i = 0; i < 5; i++) {
             // User's score will be compared to each score on the scoreboard.
             var thisScore = fromMMSStoS(highScoreData[i].score);
-            // console.log("\nthisScore: " + thisScore);
+            console.log("\nthisScore: " + thisScore);
+            console.log("userScore: " + userScore);
             if (userScore > thisScore) { // user placed above current iteration's score :)
+                console.log("userScore is greater than thisScore, therefore user places one above.\ni = " + i);
                 return i; // this is zero-based index! 'i' here can't be used as 'i'th place!
             } else if (userScore == thisScore) { // user placed below current iteration's score :(
+                console.log("userScore is equal to thisScore, therefore user places one below.\ni+1 = " + (i + 1));
                 return i + 1; // this is zero-based index! 'i' here can't be used as 'i'th place!
+            } else if (userScore < thisScore && i < 4) {
+                console.log("userScore is less than thisScore, so loop will continue until it finds a value userScore is greater than.\ni = " + i);
+                continue;
+            } else {
+                console.log("we have entered the else.\ni = " + i);
+                return 5;
             }
         }
     } else {
-        console.log("ERROR: JSON parsing in userScoreboardPlace returned null.")
+        console.log("ERROR: JSON parsing in userScoreboardPlace() returned null.")
         return null;
     }
 }
