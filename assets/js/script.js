@@ -1,3 +1,11 @@
+//FIXME: Sometimes the program will refuse to accept a correct answer.
+// I think this has something to do with the one question that only has two options.
+// Removing and restoring the elements might be causing a bug. I would expect the bug to be
+// in the logic that determines if the guess is correct. The whole "if penalize and correct text" biz.
+// It's a bit awkward so I'd look there first to fix this bug.
+// Unfortunately I can't really get it to replicate, but it would happen on the third question after
+// the true or false.
+
 // Buttons
 var startBtn = document.getElementById("start-quiz-btn");
 var viewHiScoresBtn = document.getElementById("view-high-scores-btn"); //a
@@ -132,7 +140,7 @@ function startQuiz(event) {
     startBtn.remove();
     
     // remove 'view high scores' button, re-style timer;
-    viewHiScoresBtn.remove();
+    //viewHiScoresBtn.remove();
     headerEl.setAttribute("style", "color: white; background-color: var(--purple);")
 
     // fix styling on titleText
@@ -218,10 +226,14 @@ function cycleQuestions(questionsList, questionNumber, timerSeconds) {
         // randomize each question's available options
         shuffOptions = shuffle(questionsList[questionNumber].options);
 
+        console.log("this question's shuffled options are: " + shuffOptions);
+        console.log("the correct answer is " + questionsList[questionNumber].answer);
+
         // SET TEXT, STYLE, AND PLACE CLICK LISTENERS ON OPTIONS
         // this is the main logic of the quiz
         for (var i = 0; i < shuffOptions.length; i++) {
 
+            console.log(shuffOptions[i]);
             optionListItems[i].textContent = shuffOptions[i];
             optionListItems[i].setAttribute("style", "background-color: var(--dark-purple);")
             optionListItems[i].setAttribute("advance", "true");
@@ -341,11 +353,16 @@ function handleHighScores(scoreString) {
                 event.preventDefault();
 
                 setWarningPrompt(false);
-
+                
                 var highScoreEntry = {
                     name: hsName.value,
                     score: scoreString
+                };
+
+                if (!hsName.value) { // if name entered for high score is blank or null
+                    highScoreEntry.name = "Anonymous";
                 }
+                
 
                 // debug stuff
                 console.log(highScoreEntry);
@@ -353,7 +370,7 @@ function handleHighScores(scoreString) {
                 // update the data in local storage
                 // yes I know I already wrote this code above. This however won't be executed until later.
                 highScoreData.pop(); // 5th place gets deleted to make room for new score
-                highScoreData.splice(place, 1, {name: hsName.value, score: scoreString});
+                highScoreData.splice(place, 1, {name: highScoreEntry.name, score: highScoreEntry.score});
                 localStorage.setItem("high-scores", JSON.stringify(highScoreData));
 
                 nameSpaceToFill.css("color", "black");
